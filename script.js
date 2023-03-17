@@ -95,12 +95,18 @@ function handleReset() {
 // handle verify event
 function handleVerify() {
   const para = document.querySelector('#para');
+  if (clickedImages.length !== 2) {
+    para.innerHTML = "Please select two tiles to verify that you are not a robot.";
+    return;
+  }
   if (clickedImages[0].classList[0] === clickedImages[1].classList[0]) {
     para.innerHTML = 'You are a human. Congratulations!';
   } else {
     para.innerHTML = "We can't verify you as a human. You selected the non-identical tiles.";
   }
   const verifyButton = document.querySelector('#verify');
-  verifyButton.remove();
+  if (verifyButton) {
+    verifyButton.remove();
+  }
 }
 
