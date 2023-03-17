@@ -92,21 +92,13 @@ function handleReset() {
   renderImages();
 }
 
-// handle verify event
-function handleVerify() {
-  const para = document.querySelector('#para');
-  if (clickedImages.length !== 2) {
-    para.innerHTML = "Please select two tiles to verify that you are not a robot.";
-    return;
-  }
-  if (clickedImages[0].classList[0] === clickedImages[1].classList[0]) {
-    para.innerHTML = 'You are a human. Congratulations!';
-  } else {
-    para.innerHTML = "We can't verify you as a human. You selected the non-identical tiles.";
-  }
-  const verifyButton = document.querySelector('#verify');
-  if (verifyButton) {
-    verifyButton.remove();
-  }
-}
+it('Check the verify button 2 clicks', () => {
+  cy.get('[data-ns-test="todo-input"]').type('New task{enter}');
+  cy.get('[data-ns-test="todo-complete"]').click();
+  cy.get('[data-ns-test="todo-verify"]').click().click();
+  cy.get('[data-ns-test="todo-task"]')
+    .should('have.class', 'completed')
+    .find('[data-ns-test="img1"]')
+    .should('exist');
+});
 
