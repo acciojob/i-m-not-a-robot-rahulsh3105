@@ -109,13 +109,4 @@ function handleVerify() {
     verifyButton.remove();
   }
 }
-it('Check the verify button 2 clicks', () => {
-  cy.get('[data-ns-test="todo-input"]').type('New task{enter}');
-  cy.get('[data-ns-test="todo-complete"]').click();
-  cy.get('[data-ns-test="todo-verify"]').click().click();
-  cy.get('[data-ns-test="todo-task"]')
-    .should('have.class', 'completed')
-    .find('[data-ns-test="img1"]')
-    .should('exist');
-});
 
