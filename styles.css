@@ -1,17 +1,15 @@
+/*  your css code here. If applicable */
 .container {
-  text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
 }
 
-.images {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.images img {
-  width: 150px;
-  height: 150px;
-  margin: 10px;
-  cursor: pointer;
+img {
+    width: 150px;
+    height: 150px;
+    margin: 4px;
+    border: 1px solid black;
+    cursor: pointer;
 }
