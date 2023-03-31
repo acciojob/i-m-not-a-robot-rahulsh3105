@@ -1,112 +1,64 @@
-//your JS code here. If required.
-// define image array
-const images = ["https://picsum.photos/150/150", "https://picsum.photos/150/150", "https://picsum.photos/150/150", "https://picsum.photos/150/150", "https://picsum.photos/150/150", "https://picsum.photos/150/150"];
+const images = [  'https://picsum.photos/150/150',  'https://picsum.photos/151/151',  'https://picsum.photos/152/152',  'https://picsum.photos/153/153',  'https://picsum.photos/154/154'];
 
-// shuffle images
-function shuffle(array) {
-  let currentIndex = array.length;
-  let temporaryValue, randomIndex;
+let selectedTiles = [];
+let verifyBtn = document.getElementById('verify');
+let resetBtn = document.getElementById('reset');
 
-  while (currentIndex !== 0) {
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
   }
-
-  return array;
 }
 
-// randomly assign repeating image
-function assignRepeatingImage(images) {
-  const index = Math.floor(Math.random() * images.length);
-  const repeatingImage = images[index];
-  images.splice(index, 1);
-  images.splice(Math.floor(Math.random() * images.length), 0, repeatingImage);
-}
+function renderTiles() {
+  const tileContainer = document.getElementById('tile-container');
+  shuffleArray(images);
 
-// render images
-function renderImages() {
-  const container = document.querySelector('.container');
-  container.innerHTML = '';
-  const shuffledImages = shuffle([...images]);
-  assignRepeatingImage(shuffledImages);
-  shuffledImages.forEach(image => {
-    const img = document.createElement('img');
-    img.classList.add(`img${shuffledImages.indexOf(image) + 1}`);
-    img.src = image;
-    img.addEventListener('click', handleClick);
-    container.appendChild(img);
+  images.forEach((image, index) => {
+    const tile = document.createElement('img');
+    tile.src = image;
+    tile.classList.add(`img${index + 1}`);
+    tileContainer.appendChild(tile);
+    tile.addEventListener('click', () => handleTileClick(tile));
   });
 }
 
-// initialize state
-let clickedImages = [];
-let state = 1;
+function resetTiles() {
+  selectedTiles = [];
+  renderTiles();
+  verifyBtn.classList.add('hidden');
+  resetBtn.classList.add('hidden');
+}
 
-// render images on load
-window.onload = function() {
-  renderImages();
-};
-
-// handle click event
-function handleClick(e) {
-  // prevent double-clicking the same image
-  if (e.target === clickedImages[0]) {
-    return;
+function handleTileClick(tile) {
+  if (selectedTiles.length < 2 && !selectedTiles.includes(tile)) {
+    selectedTiles.push(tile);
+    tile.classList.add('selected');
   }
 
-  // add clicked image to array and update state
-  clickedImages.push(e.target);
-  state = clickedImages.length === 1 ? 2 : 3;
-
-  // render reset button
-  const resetButton = document.querySelector('#reset');
-  resetButton.style.display = 'block';
-  resetButton.addEventListener('click', handleReset);
-
-  // render verify button
-  const verifyButton = document.querySelector('#verify');
-  if (state === 3 && !verifyButton) {
-    const button = document.createElement('button');
-    button.id = 'verify';
-    button.innerHTML = 'Verify';
-    button.addEventListener('click', handleVerify);
-    container.after(button);
+  if (selectedTiles.length === 2) {
+    if (selectedTiles[0].classList[0] === selectedTiles[1].classList[0]) {
+      verifyBtn.classList.remove('hidden');
+    } else {
+      resetBtn.classList.remove('hidden');
+    }
   }
 }
 
-// handle reset event
-function handleReset() {
-  clickedImages = [];
-  state = 1;
-  const resetButton = document.querySelector('#reset');
-  resetButton.style.display = 'none';
-  const verifyButton = document.querySelector('#verify');
-  if (verifyButton) {
-    verifyButton.remove();
-  }
-  const para = document.querySelector('#para');
-  para.innerHTML = '';
-  renderImages();
-}
-
-// handle verify event
-function handleVerify() {
-  const para = document.querySelector('#para');
-  if (clickedImages.length !== 2) {
-    para.innerHTML = "Please select two tiles to verify that you are not a robot.";
-    return;
-  }
-  if (clickedImages[0].classList[0] === clickedImages[1].classList[0]) {
-    para.innerHTML = 'You are a human. Congratulations!';
+function verifySelection() {
+  if (selectedTiles[0].classList[0] === selectedTiles[1].classList[0]) {
+    document.getElementById('para').innerText = 'You are a human. Congratulations!';
   } else {
-    para.innerHTML = "We can't verify you as a human. You selected the non-identical tiles.";
+    document.getElementById('para').innerText = 'We can\'t verify you as a human. You selected the non-identical tiles.';
   }
-  const verifyButton = document.querySelector('#verify');
-  if (verifyButton) {
-    verifyButton.remove();
-  }
+
+  verifyBtn.classList.add('hidden');
+  resetBtn.classList.remove('hidden');
+  selectedTiles = [];
 }
 
+resetBtn.addEventListener('click', resetTiles);
+verifyBtn.addEventListener('click', verifySelection);
+
+renderTiles();
