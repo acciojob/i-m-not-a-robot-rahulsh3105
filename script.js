@@ -1,112 +1,91 @@
-//your JS code here. If required.
-// define image array
-const images = ["https://picsum.photos/150/150", "https://picsum.photos/150/150", "https://picsum.photos/150/150", "https://picsum.photos/150/150", "https://picsum.photos/150/150", "https://picsum.photos/150/150"];
-
-// shuffle images
-function shuffle(array) {
-  let currentIndex = array.length;
-  let temporaryValue, randomIndex;
-
-  while (currentIndex !== 0) {
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
-
-  return array;
+//your code here
+let image = [];
+for (let i = 0; i < 5; i++) {
+  let t = document.createElement("IMG");
+  t.setAttribute("data-ns-test", `img${i + 1}`);
+  t.width = 100;
+  t.height = 100;
+  t.onclick = (e) => captchaClick(e);
+  t.src = `images/${i + 1}.jpg`;
+  image.push(t);
+}
+let temp = Math.floor(Math.random() * 5);
+let t = document.createElement("IMG");
+t.setAttribute("data-ns-test", `img${temp + 1}`);
+t.width = 100;
+t.height = 100;
+t.onclick = (e) => captchaClick(e);
+t.src = `images/${temp + 1}.jpg`;
+image.push(t);
+image.sort(() => Math.random() - 0.5);
+for (let i = 0; i < 6; i++) {
+  document.getElementById("main").appendChild(image[i]);
 }
 
-// randomly assign repeating image
-function assignRepeatingImage(images) {
-  const index = Math.floor(Math.random() * images.length);
-  const repeatingImage = images[index];
-  images.splice(index, 1);
-  images.splice(Math.floor(Math.random() * images.length), 0, repeatingImage);
+let captcha = [];
+function clearCaptcha() {
+  // console.log("Clearing captcha");
+  for (let i = 0; i < 6; i++) {
+    image[i].onclick = (e) => captchaClick(e);
+  }
+  captcha = [];
+  try {
+    document.getElementById("para").remove();
+  } catch (e) {}
+  try {
+    document.getElementById("btn").remove();
+  } catch (e) {}
+  try {
+    document.getElementById("reset").remove();
+  } catch (e) {}
 }
 
-// render images
-function renderImages() {
-  const container = document.querySelector('.container');
-  container.innerHTML = '';
-  const shuffledImages = shuffle([...images]);
-  assignRepeatingImage(shuffledImages);
-  shuffledImages.forEach(image => {
-    const img = document.createElement('img');
-    img.classList.add(`img${shuffledImages.indexOf(image) + 1}`);
-    img.src = image;
-    img.addEventListener('click', handleClick);
-    container.appendChild(img);
-  });
+function captchaClick(e) {
+  console.log(e.target.attributes["data-ns-test"].nodeValue);
+  captcha.push(e.target.attributes["data-ns-test"].nodeValue);
+  e.target.onclick = () => {};
+  // console.log(captcha);
+
+  if (captcha.length === 1) {
+    let p = document.createElement("button");
+    p.id = "reset";
+    p.innerHTML = "Reset";
+    p.onclick = () => {
+      clearCaptcha();
+    };
+    document.getElementById("main").appendChild(p);
+  }
+
+  if (captcha.length === 2) {
+    let t = document.createElement("button");
+    t.id = "btn";
+    t.innerHTML = "Verify";
+    t.onclick = () => {
+      captchaVerify();
+    };
+    document.getElementById("main").appendChild(t);
+  } else if (captcha.length > 2) {
+    try {
+      document.getElementById("btn").remove();
+    } catch (e) {}
+  }
+  try {
+    document.getElementById("para").remove();
+  } catch (e) {}
 }
 
-// initialize state
-let clickedImages = [];
-let state = 1;
-
-// render images on load
-window.onload = function() {
-  renderImages();
-};
-
-// handle click event
-function handleClick(e) {
-  // prevent double-clicking the same image
-  if (e.target === clickedImages[0]) {
-    return;
-  }
-
-  // add clicked image to array and update state
-  clickedImages.push(e.target);
-  state = clickedImages.length === 1 ? 2 : 3;
-
-  // render reset button
-  const resetButton = document.querySelector('#reset');
-  resetButton.style.display = 'block';
-  resetButton.addEventListener('click', handleReset);
-
-  // render verify button
-  const verifyButton = document.querySelector('#verify');
-  if (state === 3 && !verifyButton) {
-    const button = document.createElement('button');
-    button.id = 'verify';
-    button.innerHTML = 'Verify';
-    button.addEventListener('click', handleVerify);
-    container.after(button);
-  }
-}
-
-// handle reset event
-function handleReset() {
-  clickedImages = [];
-  state = 1;
-  const resetButton = document.querySelector('#reset');
-  resetButton.style.display = 'none';
-  const verifyButton = document.querySelector('#verify');
-  if (verifyButton) {
-    verifyButton.remove();
-  }
-  const para = document.querySelector('#para');
-  para.innerHTML = '';
-  renderImages();
-}
-
-// handle verify event
-function handleVerify() {
-  const para = document.querySelector('#para');
-  if (clickedImages.length !== 2) {
-    para.innerHTML = "Please select two tiles to verify that you are not a robot.";
-    return;
-  }
-  if (clickedImages[0].classList[0] === clickedImages[1].classList[0]) {
-    para.innerHTML = 'You are a human. Congratulations!';
+function captchaVerify() {
+  if (captcha.length === 2 && captcha[0] === captcha[1]) {
+    let t = document.createElement("P");
+    t.innerHTML = "You are a human. Congratulations!";
+    t.id = "para";
+    document.getElementById("main").appendChild(t);
   } else {
-    para.innerHTML = "We can't verify you as a human. You selected the non-identical tiles.";
+    let t = document.createElement("P");
+    t.innerHTML =
+      "We can't verify you as a human. You selected the non-identical tiles.";
+    t.id = "para";
+    document.getElementById("main").appendChild(t);
   }
-  const verifyButton = document.querySelector('#verify');
-  if (verifyButton) {
-    verifyButton.remove();
-  }
+  document.getElementById("btn").remove();
 }
-
